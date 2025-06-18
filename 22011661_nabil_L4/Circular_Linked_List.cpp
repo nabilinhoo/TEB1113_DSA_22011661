@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <stdexcept> // For RangeError
 using namespace std;
 
 class Node {
@@ -7,110 +8,70 @@ public:
     string name;
     Node* next_ptr;
 
-    Node(string name, Node* next_ptr = nullptr) {
+    Node(string name) {
         this->name = name;
-        this->next_ptr = next_ptr;
+        this->next_ptr = nullptr;
     }
 };
 
-class LinkedList {
+class CircularLinkedList {
 private:
     Node* head;
     Node* tail;
 
 public:
-    LinkedList() {
+    CircularLinkedList() {
         head = nullptr;
         tail = nullptr;
     }
 
-    LinkedList(string name) {
-        Node* newNode = new Node(name);
-        newNode->next_ptr = newNode; 
-        head = newNode;
-        tail = newNode;
-    }
-
-    void add_element(string name) {
+    void add(string name) {
         Node* newNode = new Node(name);
         if (head == nullptr) {
-            newNode->next_ptr = newNode;
             head = newNode;
             tail = newNode;
+            newNode->next_ptr = head; // circular
         } else {
-            newNode->next_ptr = head;
             tail->next_ptr = newNode;
             tail = newNode;
+            tail->next_ptr = head; // maintain circular link
         }
     }
 
-    void delete_element(string name) {
+    void show_circle(int max_loops) {
         if (head == nullptr) {
             cout << "List is empty." << endl;
             return;
         }
 
         Node* current = head;
-        Node* previous = tail;
-        bool found = false;
+        int counter = 0;
 
-        do {
-            if (current->name == name) {
-                found = true;
-                break;
+        try {
+            cout << "Showing names in a circle (up to " << max_loops << " names):" << endl;
+            while (true) {
+                if (counter >= max_loops) {
+                    throw range_error("RangeError: Loop limit exceeded.");
+                }
+                cout << current->name << " -> ";
+                current = current->next_ptr;
+                counter++;
             }
-            previous = current;
-            current = current->next_ptr;
-        } while (current != head);
-
-        if (!found) {
-            cout << "Node not found." << endl;
-            return;
+        } catch (range_error& e) {
+            cout << "\n" << e.what() << endl;
         }
-
-        if (current == head && current == tail) {
-            // Only one node
-            delete current;
-            head = nullptr;
-            tail = nullptr;
-        } else {
-            previous->next_ptr = current->next_ptr;
-            if (current == head) head = current->next_ptr;
-            if (current == tail) tail = previous;
-            delete current;
-        }
-        cout << "Node deleted." << endl;
-    }
-
-    void view() {
-        if (head == nullptr) {
-            cout << "List is empty." << endl;
-            return;
-        }
-
-        Node* current = head;
-        cout << "Circular Linked List: ";
-        do {
-            cout << current->name << " -> ";
-            current = current->next_ptr;
-        } while (current != head);
-        cout << "(back to head)" << endl;
     }
 };
 
 int main() {
-    LinkedList list("A");
+    CircularLinkedList list;
 
-    list.add_element("B");
-    list.add_element("C");
+    list.add("Ahmed");
+    list.add("Alee");
+    list.add("Ali");
+    list.add("Hamza");
 
-    list.view();
-
-    list.delete_element("B");
-    list.view();
-
-    list.delete_element("X"); 
-    list.view();
+    list.show_circle(10); // Show 10 names in a loop
 
     return 0;
 }
