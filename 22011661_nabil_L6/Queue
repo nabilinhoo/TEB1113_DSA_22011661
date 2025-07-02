@@ -1,0 +1,99 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Node {
+public:
+    string name;
+    Node* next_ptr;
+
+    Node(string name, Node* next_ptr = nullptr) {
+        this->name = name;
+        this->next_ptr = next_ptr;
+    }
+};
+
+class LinkedList {
+private:
+    Node* front;
+    Node* rear;
+
+public:
+    LinkedList() {
+        front = nullptr;
+        rear = nullptr;
+    }
+
+    LinkedList(string name) {
+        Node* newNode = new Node(name);
+        front = newNode;
+        rear = newNode;
+    }
+
+    void enqueue(string name) {
+        Node* newNode = new Node(name);
+        if (front == nullptr) {
+            front = newNode;
+            rear = newNode;
+        } else {
+            rear->next_ptr = newNode;
+            rear = newNode;
+        }
+    }
+
+    string dequeue() {
+        if (front == nullptr) {
+            return "";
+        }
+
+        Node* temp = front;
+        string value = front->name;
+        front = front->next_ptr;
+        
+        if (front == nullptr) {
+            rear = nullptr;
+        }
+        
+        delete temp;
+        return value;
+    }
+
+    void view() {
+        if (front == nullptr) {
+            cout << "List is empty." << endl;
+        } else {
+            Node* current = front;
+            cout << "Linked List: ";
+            while (current != nullptr) {
+                cout << current->name << " -> ";
+                current = current->next_ptr;
+            }
+            cout << "NULL" << endl;
+        }
+    }
+};
+
+int main() {
+    LinkedList queue;
+    
+    // Enqueue operations
+    queue.enqueue("A");
+    queue.enqueue("B");
+    queue.enqueue("C");
+    
+    // Initial view
+    cout << "Initial queue:" << endl;
+    queue.view();
+    
+    // Dequeue operations
+    cout << "\nDequeued: " << queue.dequeue() << endl;
+    queue.view();
+    
+    cout << "\nDequeued: " << queue.dequeue() << endl;
+    queue.view();
+    
+    cout << "\nDequeued: " << queue.dequeue() << endl;
+    queue.view();  // This will show "List is empty."
+    
+    return 0;
+}
